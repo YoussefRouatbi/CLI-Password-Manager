@@ -5,6 +5,33 @@ import base64
 import secrets
 from cryptography.fernet import Fernet
 import hashlib
+from colorama import Fore, Style, init
+import time
+
+# Initialize colorama
+init(autoreset=True)
+
+# ASCII Art banner
+banner = f"""
+{Fore.CYAN}
+   ____ _     ___ ___    _  _   _  ____ ___ _   _  __  __
+  |  _ \ |   |_ _/ _ \  | || | | |/ ___|_ _| \ | | \ \/ /
+  | |_) | |    | | | | | | || |_| | |    | ||  \| |  \  / 
+  |  __/| |___ | | |_| | |__   _| | |___ | || |\  |  /  \ 
+  |_|   |_____|___\___/     |_|   \____|___|_| \_| /_/\_\
+
+{Fore.YELLOW}Created by Yousef Rouatbi
+Python CLI Password Manager
+Secure & Easy to Use
+"""
+
+# Show banner like “hacker” style
+for line in banner.splitlines():
+    print(line)
+    time.sleep(0.05)  # small delay for effect
+
+print(Fore.GREEN + "\nStarting CLI Password Manager...\n")
+time.sleep(0.3)
 
 DATA_FILE = "vault.dat"
 KEY_FILE = "key.key"
