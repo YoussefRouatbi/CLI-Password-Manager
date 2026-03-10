@@ -1,4 +1,3 @@
-import argparse
 import json
 import os
 import base64
@@ -8,10 +7,9 @@ import hashlib
 from colorama import Fore, Style, init
 import time
 
-# Initialize colorama
+
 init(autoreset=True)
 
-# ASCII Art banner
 banner = f"""
 {Fore.CYAN}
    ____ _     ___ ___    _  _   _  ____ ___ _   _  __  __
@@ -20,98 +18,114 @@ banner = f"""
   |  __/| |___ | | |_| | |__   _| | |___ | || |\  |  /  \ 
   |_|   |_____|___\___/     |_|   \____|___|_| \_| /_/\_\
 
-{Fore.YELLOW}Created by Yousef Rouatbi
+{Fore.YELLOW}Created by Youssef Rouatbi
 Python CLI Password Manager
 Secure & Easy to Use
 """
 
-# Show banner like “hacker” style
+
 for line in banner.splitlines():
     print(line)
-    time.sleep(0.05)  # small delay for effect
+    time.sleep(0.03)
 
 print(Fore.GREEN + "\nStarting CLI Password Manager...\n")
-time.sleep(0.3)
+time.sleep(0.2)
 
 DATA_FILE = "vault.dat"
-KEY_FILE = "key.key"
-
 
 def generate_key(master_password):
     return base64.urlsafe_b64encode(hashlib.sha256(master_password.encode()).digest())
 
-
 def load_vault(key):
     if not os.path.exists(DATA_FILE):
         return {}
-
     with open(DATA_FILE, "rb") as f:
         encrypted = f.read()
-
     fernet = Fernet(key)
-    decrypted = fernet.decrypt(encrypted)
-
+    try:
+        decrypted = fernet.decrypt(encrypted)
+    except Exception:
+        print(Fore.RED + "Error: Master password incorrect or vault corrupted!")
+        exit(1)
     return json.loads(decrypted.decode())
-
 
 def save_vault(vault, key):
     fernet = Fernet(key)
     data = json.dumps(vault).encode()
     encrypted = fernet.encrypt(data)
-
     with open(DATA_FILE, "wb") as f:
         f.write(encrypted)
-
 
 def generate_password(length=16):
     alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 
+def add_password(vault, key):
+    service = input("Enter service name: ")
+    password = input("Password (leave empty to generate): ")
+    if password == "":
+        password = generate_password()
+        print(Fore.GREEN + "Generated password:", password)
+    vault[service] = password
+    save_vault(vault, key)
+    print(Fore.GREEN + f"Password for '{service}' saved successfully!")
+
+def get_password(vault):
+    service = input("Enter service name: ")
+    if service in vault:
+        print(Fore.CYAN + f"Password for '{service}': {vault[service]}")
+    else:
+        print(Fore.RED + f"Service '{service}' not found!")
+
+def list_services(vault):
+    if vault:
+        print(Fore.YELLOW + "Saved services:")
+        for service in vault:
+            print(Fore.CYAN + f"- {service}")
+    else:
+        print(Fore.YELLOW + "No services stored yet.")
+
+def delete_password(vault, key):
+    service = input("Enter service name to delete: ")
+    if service in vault:
+        del vault[service]
+        save_vault(vault, key)
+        print(Fore.GREEN + f"Service '{service}' deleted successfully!")
+    else:
+        print(Fore.RED + f"Service '{service}' not found!")
+
 def main():
-    parser = argparse.ArgumentParser(description="CLI Password Manager")
-    parser.add_argument("command", choices=["add", "get", "list", "delete", "gen"])
-    parser.add_argument("service", nargs="?")
-    args = parser.parse_args()
-
-    master = input("Master password: ")
+    master = input(Fore.MAGENTA + "Master password: ")
     key = generate_key(master)
-
     vault = load_vault(key)
 
-    if args.command == "add":
-        password = input("Password (leave empty to generate): ")
+    while True:
+        print(Fore.BLUE + "\n--- Menu ---")
+        print("1) Add password")
+        print("2) Get password")
+        print("3) List services")
+        print("4) Delete password")
+        print("5) Generate random password")
+        print("6) Exit")
 
-        if password == "":
-            password = generate_password()
-            print("Generated password:", password)
+        choice = input("Select an option (1-6): ")
 
-        vault[args.service] = password
-        save_vault(vault, key)
-
-        print("Saved.")
-
-    elif args.command == "get":
-        if args.service in vault:
-            print("Password:", vault[args.service])
+        if choice == "1":
+            add_password(vault, key)
+        elif choice == "2":
+            get_password(vault)
+        elif choice == "3":
+            list_services(vault)
+        elif choice == "4":
+            delete_password(vault, key)
+        elif choice == "5":
+            print(Fore.GREEN + "Generated password:", generate_password())
+        elif choice == "6":
+            print(Fore.YELLOW + "Exiting... Goodbye!")
+            break
         else:
-            print("Service not found")
-
-    elif args.command == "list":
-        for service in vault:
-            print(service)
-
-    elif args.command == "delete":
-        if args.service in vault:
-            del vault[args.service]
-            save_vault(vault, key)
-            print("Deleted.")
-        else:
-            print("Service not found")
-
-    elif args.command == "gen":
-        print(generate_password())
-
+            print(Fore.RED + "Invalid option. Try again.")
 
 if __name__ == "__main__":
     main()
