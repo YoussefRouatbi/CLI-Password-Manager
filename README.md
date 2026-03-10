@@ -9,11 +9,12 @@ A **terminal-based password manager** designed for **simplicity, security, and a
 
 ## 🔐 Features
 
-* Securely store and retrieve passwords with **encryption**
+* Securely store and retrieve passwords with **Fernet encryption** using a master password
 * Generate **strong, random passwords** automatically
-* Add, get, list, or delete accounts directly from the CLI
+* Add, get, list, or delete accounts directly from the CLI menu
 * Works entirely in **terminal / CLI** (no GUI required)
-* Minimal dependencies for easy installation
+* ASCII banner and **colored terminal output** for a hacker-style vibe
+* Minimal dependencies: `cryptography` and `colorama`
 
 ---
 
@@ -53,42 +54,22 @@ pip install -r requirements.txt
 
 ## 💻 Usage
 
-Run commands using Python in the terminal.
-
-### Add a new account
+Run the program in the terminal with Python:
 
 ```bash
-python passman.py add <account_name>
+python passman.py
 ```
 
-* Enter your **master password**
-* Enter a password for the account (or leave empty to generate a strong random password)
+You will see a **hacker-style ASCII banner** and be prompted for your **master password**. Once logged in, you can use the CLI menu to:
 
-### Get a password
+### Menu Options
 
-```bash
-python passman.py get <account_name>
-```
-
-* Prints the stored password for the account
-
-### List all accounts
-
-```bash
-python passman.py list
-```
-
-### Delete an account
-
-```bash
-python passman.py delete <account_name>
-```
-
-### Generate a random password
-
-```bash
-python passman.py gen
-```
+1. **Add password** – Add a new service and its password (or generate one automatically)
+2. **Get password** – Retrieve the password for a service
+3. **List services** – View all saved services
+4. **Delete password** – Remove a service and its password
+5. **Generate random password** – Create a strong random password
+6. **Exit** – Close the program
 
 ---
 
@@ -114,9 +95,10 @@ Master password:
 
 ## 🔒 Security Notes
 
-* Your passwords are stored locally in an **encrypted file**
+* Your passwords are stored locally in an **encrypted file `vault.dat`**
 * Never share your **master password**
-* The master password is required for **every command**
+* The master password is required for **every session**
+* Strong passwords are generated using the `secrets` module for maximum randomness
 
 ---
 
@@ -124,4 +106,4 @@ Master password:
 
 * Use the **generated random passwords** for maximum security
 * Keep your **master password memorable but strong**
-* Backup your encrypted database file regularly
+* Backup your encrypted `vault.dat` file regularly
